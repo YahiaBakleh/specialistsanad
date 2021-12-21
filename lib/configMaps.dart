@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'Models/allUsers.dart';
@@ -9,7 +10,7 @@ String mapKey = "AIzaSyAXhk1498g3ORPHcP6Wytkouh0Mn28obVo";
 String  BrandBold='Brand Bold' ;
 String  BrandRegular='Brand-Regular' ;
 String  Signatra='Signatra';
-
+final assetsAudioPlayer = AssetsAudioPlayer();
 User? firebaseUser;
 
 Users? userCurrentInfo;

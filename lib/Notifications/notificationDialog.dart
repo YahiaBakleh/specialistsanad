@@ -82,7 +82,10 @@ class NotificationDialog extends StatelessWidget {
                       color:Colors.white,
                       textColor: Colors.white,
                       padding: EdgeInsets.all(8.0),
-                      onPressed:(){},
+                      onPressed:(){
+                        assetsAudioPlayer.stop();
+                        Navigator.pop(context);
+                      },
                       child: Text(
                         "Cancel".toUpperCase(),
                         style: TextStyle(
@@ -99,7 +102,9 @@ class NotificationDialog extends StatelessWidget {
                     color:Colors.green,
                     textColor: Colors.white,
                     padding: EdgeInsets.all(8.0),
-                    onPressed:(){},
+                    onPressed:(){
+                      assetsAudioPlayer.stop();
+                    },
                     child: Text(
                       "Accept".toUpperCase(),
                       style: TextStyle(

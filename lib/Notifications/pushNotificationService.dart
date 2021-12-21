@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -69,6 +70,7 @@ class PushNotificationService{
         userDetails.payment_method = paymentMethod;
         userDetails.session_address = sessionAddress;
         userDetails.session_location= LatLng(sessionLocationLat, sessionLocationLng);
+        assetsAudioPlayer.play();
         showDialog(context: context,barrierDismissible: false, builder: (BuildContext context)=>NotificationDialog(userDetails));
       }
     });
