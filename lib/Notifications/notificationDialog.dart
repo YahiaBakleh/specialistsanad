@@ -17,7 +17,13 @@ class NotificationDialog extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          children:[
+            SizedBox(height: 30.0,),
+            Image.asset('images/user_icon.png',width: 120.0,),
+            SizedBox(height: 18.0,),
+            Text('New Session Request',style:TextStyle(fontFamily: ''),),
 
+          ],
         ),
       ),
     );

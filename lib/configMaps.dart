@@ -6,6 +6,10 @@ import 'Models/allUsers.dart';
 
 String mapKey = "AIzaSyAXhk1498g3ORPHcP6Wytkouh0Mn28obVo";
 
+String  BrandBold='Brand Bold' ;
+String  BrandRegular='Brand-Regular' ;
+String  Signatra='Signatra';
+
 User? firebaseUser;
 
 Users? userCurrentInfo;
