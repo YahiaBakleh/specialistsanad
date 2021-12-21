@@ -83,7 +83,7 @@ class NotificationDialog extends StatelessWidget {
                       textColor: Colors.white,
                       padding: EdgeInsets.all(8.0),
                       onPressed:(){
-                        assetsAudioPlayer.stop();
+                        assetsAudioPlayers.stop();
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -103,7 +103,7 @@ class NotificationDialog extends StatelessWidget {
                     textColor: Colors.white,
                     padding: EdgeInsets.all(8.0),
                     onPressed:(){
-                      assetsAudioPlayer.stop();
+                      assetsAudioPlayers.stop();
                     },
                     child: Text(
                       "Accept".toUpperCase(),
