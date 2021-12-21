@@ -1,9 +1,11 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 // import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
+import 'package:specialistsanad/Notifications/notificationDialog.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:specialistsanad/main.dart';
 import 'dart:io' show Platform;
@@ -26,15 +28,15 @@ class PushNotificationService{
     // );
     await Firebase.initializeApp();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      retrieveUserRequestInfo(getUserRequestId(message));
+      retrieveUserRequestInfo(getUserRequestId(message),context);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      retrieveUserRequestInfo(getUserRequestId(message));
+      retrieveUserRequestInfo(getUserRequestId(message),context);
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      retrieveUserRequestInfo(getUserRequestId(message));
+      retrieveUserRequestInfo(getUserRequestId(message),context);
     });
   }
 
@@ -54,7 +56,7 @@ class PushNotificationService{
     return userRequestId;
   }
 
-  void retrieveUserRequestInfo(String userRequestId){
+  void retrieveUserRequestInfo(String userRequestId, BuildContext context){
     newRequsetsRef.child(userRequestId).once().then((DataSnapshot dataSnapShot){
       if(dataSnapShot!=null){
         double sessionLocationLat = double.parse(dataSnapShot.value['session_location']['latitude'].toString());
@@ -67,6 +69,7 @@ class PushNotificationService{
         userDetails.payment_method = paymentMethod;
         userDetails.session_address = sessionAddress;
         userDetails.session_location= LatLng(sessionLocationLat, sessionLocationLng);
+        showDialog(context: context,barrierDismissible: false, builder: (BuildContext context)=>NotificationDialog(userDetails));
       }
     });
   }
