@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Sanad Care - Every thing Start Small',
         theme: ThemeData(
+          // primarySwatch: Colors.indigo,
           primarySwatch: Colors.indigo,
           fontFamily: 'Brand Bold',
           visualDensity: VisualDensity.adaptivePlatformDensity,
