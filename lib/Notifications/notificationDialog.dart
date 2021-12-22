@@ -1,7 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:specialistsanad/AllScreens/newUserScreen.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
 import 'package:specialistsanad/configMaps.dart';
+import 'package:specialistsanad/main.dart';
 
 class NotificationDialog extends StatelessWidget {
   // const NotificationDialog({Key? key}) : super(key: key);
@@ -104,6 +107,7 @@ class NotificationDialog extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     onPressed:(){
                       assetsAudioPlayers.stop();
+                      checkAvailabilityofUser(context);
                     },
                     child: Text(
                       "Accept".toUpperCase(),
@@ -119,5 +123,28 @@ class NotificationDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+  void checkAvailabilityofUser(context){
+
+    requestRef.once().then((DataSnapshot dataSnapshot){
+      String userId='';
+      if(dataSnapshot.value !=null){
+        userId = dataSnapshot.value.toString();
+      }else{
+        Fluttertoast.showToast(msg: "User not exists");
+      }
+      if(userId==uerDetails?.user_request_id.toString()){
+        requestRef.set('accepted');
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>NewUserScreen(uerDetails!)));
+      }else if(userId=='cancelled'){
+        Fluttertoast.showToast(msg: "Request has been cancelled");
+      }else if(userId=='timeout'){
+        Fluttertoast.showToast(msg: "times up");
+      }else{
+        Fluttertoast.showToast(msg: "User not exists");
+      }
+      Navigator.pop(context);
+    });
+
   }
 }
