@@ -2,11 +2,13 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:specialistsanad/AllScreens/newUserScreen.dart';
+import 'package:specialistsanad/Assistants/assistantMethod.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:specialistsanad/main.dart';
 
 // this line will change from time to time git not working fine
+// AssistantMethod.appProtection(context) will make use unavailable and singout
 class NotificationDialog extends StatelessWidget {
   // const NotificationDialog({Key? key}) : super(key: key);
   final UserDetails? uerDetails;
@@ -87,6 +89,7 @@ class NotificationDialog extends StatelessWidget {
                       textColor: Colors.white,
                       padding: EdgeInsets.all(8.0),
                       onPressed:(){
+                        AssistantMethod.appProtection(context);
                         assetsAudioPlayers.stop();
                         Navigator.pop(context);
                       },
@@ -107,6 +110,7 @@ class NotificationDialog extends StatelessWidget {
                     textColor: Colors.white,
                     padding: EdgeInsets.all(8.0),
                     onPressed:(){
+                      AssistantMethod.appProtection(context);
                       assetsAudioPlayers.stop();
                       checkAvailabilityofUser(context);
                     },

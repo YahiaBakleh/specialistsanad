@@ -16,6 +16,7 @@ User? firebaseUser;
 Users? userCurrentInfo;
 
 User? currentFirebaseUser;
+String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
 StreamSubscription<Position>? homeTabPagesStreamSubscription;
 int? driverRequestTimeOut = 40;

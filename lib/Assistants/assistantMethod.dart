@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:specialistsanad/Assistants/requestAssistant.dart';
 import 'package:specialistsanad/DataHandler/appData.dart';
 import 'package:specialistsanad/Models/address.dart' as userAddress;
@@ -10,6 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:specialistsanad/main.dart';
 
 class AssistantMethod {
 //TODO:  enable Billing on the Google Cloud Project at https://console.cloud.google.com/ Learn more at https://developers.google.com/maps/gmp-get-started"
@@ -103,4 +107,27 @@ class AssistantMethod {
       }
     });
   }
+
+  static void appProtection(BuildContext context){
+    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+    specialistRef.child(currentUserId.toString()).once().then((DataSnapshot snap) {
+      if (snap.value != null) {
+        if(snap.value['activated']){
+          currentFirebaseUser = firebaseUser;
+        }else{
+          Geofire.removeLocation(currentFirebaseUser!.uid);
+          requestRef.onDisconnect();
+          requestRef.remove();
+          Navigator.pop(context);
+          _firebaseAuth.signOut();
+          Fluttertoast.showToast(msg: "Account has been disctivate, contact us to reactivate ");
+        }
+      } else {
+        Navigator.pop(context);
+        _firebaseAuth.signOut();
+        Fluttertoast.showToast(msg: "No Such User. Please create new account");
+      }
+    });
+  }
+
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:specialistsanad/Assistants/assistantMethod.dart';
 import 'package:specialistsanad/Notifications/pushNotificationService.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:specialistsanad/main.dart';
@@ -112,6 +113,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                 child: RaisedButton(
                   onPressed: () {
                     /*specialist offline make him online */
+                    AssistantMethod.appProtection(context);
                     if (isAvailable != true) {
                       makeMeOnline();
                       getLocationLiveUpdates();
