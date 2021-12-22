@@ -165,7 +165,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     currentPosition = position;
     Geofire.initialize('availableSpecialist');
     Geofire.setLocation(currentFirebaseUser!.uid, currentPosition!.latitude, currentPosition!.longitude);
-    requestRef.set('serching');
+    requestRef.set('searching');
     requestRef.onValue.listen((event) {});
   }
 

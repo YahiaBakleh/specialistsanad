@@ -6,6 +6,7 @@ import 'package:specialistsanad/Models/userDetails.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:specialistsanad/main.dart';
 
+// this line will chnge some time git not working fine
 class NotificationDialog extends StatelessWidget {
   // const NotificationDialog({Key? key}) : super(key: key);
   final UserDetails? uerDetails;
