@@ -70,6 +70,7 @@ class PushNotificationService{
         userDetails.payment_method = paymentMethod;
         userDetails.session_address = sessionAddress;
         userDetails.session_location= LatLng(sessionLocationLat, sessionLocationLng);
+        assetsAudioPlayers.open(Audio("sounds/alerts.mp3"));
         assetsAudioPlayers.play();
         showDialog(context: context,barrierDismissible: false, builder: (BuildContext context)=>NotificationDialog(userDetails));
       }
