@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
 
-//to show user info in dealog for specialist
+//to show user Details in dialog for specialist
 class NewUserScreen extends StatefulWidget {
   // const NewUserScreen({Key? key}) : super(key: key);
   UserDetails userDetails;
