@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:specialistsanad/AllWidgets/progressDialog.dart';
+import 'package:specialistsanad/Assistants/assistantMethod.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
 import 'package:specialistsanad/configMaps.dart';
 
@@ -18,24 +21,37 @@ class NewUserScreen extends StatefulWidget {
 class _NewUserScreenState extends State<NewUserScreen> {
   Completer<GoogleMapController> _controllerGoogleMap = Completer();
   GoogleMapController? newUserGoogleMapController;
+  Set<Marker> markersSet = Set<Marker>();
+  Set<Circle> circleSet = Set<Circle>();
+  Set<Polyline> polylineSet= Set<Polyline>();
+  List<LatLng> polylineCorOrdinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+  double mapPaddingBottom = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body:  Stack(
         children: [
           GoogleMap(
+            padding: EdgeInsets.only(bottom: mapPaddingBottom),
             mapType: MapType.normal,
+            myLocationButtonEnabled: false,
             initialCameraPosition: NewUserScreen._kGooglePlex,
             myLocationEnabled: true,
-            myLocationButtonEnabled: false,
             // zoomControlsEnabled: true,
             // zoomGesturesEnabled: true,
-            // polylines: polylineSet,
-            // markers: markersSet,
-            // circles: circlesSet,
-            onMapCreated: (GoogleMapController controller) {
-            _controllerGoogleMap.complete(controller);
-            newUserGoogleMapController = controller;
+            markers: markersSet,
+            circles: circleSet,
+            polylines: polylineSet,
+            onMapCreated: (GoogleMapController controller) async {
+              _controllerGoogleMap.complete(controller);
+              newUserGoogleMapController = controller;
+              setState(() {
+                mapPaddingBottom = 270;
+              });
+              var currentLatlng = LatLng(currentPosition!.latitude.toDouble(), currentPosition!.longitude.toDouble());
+              var sessionLatling = widget.userDetails.session_location;
+              await getPlaceDirection(currentLatlng, sessionLatling!);
             },
           ),
           Positioned(
@@ -124,5 +140,118 @@ class _NewUserScreenState extends State<NewUserScreen> {
         ]
       ),
     );
+  }
+
+  Future<void> getPlaceDirection( LatLng initialLatLng , LatLng sessionLatLng) async {
+    //HINT: initialPos is where spacialist or doctor will come or accept the request
+    // get pickUpLocation as initialPos and sessionLocation as sessionPos
+    // var initialPos =
+    //     Provider.of<AppData>(context, listen: false).pickUpLocation;
+    // var sessionPos =
+    //     Provider.of<AppData>(context, listen: false).sessionLocation;
+    // // convert initialPos and sessionPos to LatLng point
+    // var initialLatLng = LatLng(
+    //     initialPos!.latitude!.toDouble(), initialPos.longitude!.toDouble());
+    // var sessionLatLng = LatLng(
+    //     sessionPos!.latitude!.toDouble(), sessionPos.longitude!.toDouble());
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => ProgressDialog(
+          message: "Please wait...",
+        ));
+
+    var details = await AssistantMethod.obtainPlaceDirectionDetails(
+        initialLatLng /*pickUpLatLng*/, sessionLatLng /*dropOffLatLng*/);
+
+    Navigator.pop(context);
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> decodedPolyLinePointsResult =
+    polylinePoints.decodePolyline(details!.encodedPoints.toString());
+
+    polylineCorOrdinates.clear();
+
+    if (decodedPolyLinePointsResult.isNotEmpty) {
+      decodedPolyLinePointsResult.forEach((PointLatLng pointLatLng) {
+        polylineCorOrdinates.add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
+      });
+    }
+
+    polylineSet.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+        color: Colors.pink,
+        polylineId: PolylineId("PolylineID"),
+        jointType: JointType.round,
+        points: polylineCorOrdinates,
+        width: 5,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        geodesic: true,
+      );
+
+      polylineSet.add(polyline);
+    });
+
+    LatLngBounds latLngBounds;
+    if (initialLatLng.latitude > sessionLatLng.latitude &&
+        initialLatLng.longitude > sessionLatLng.longitude) {
+      latLngBounds =
+          LatLngBounds(southwest: initialLatLng, northeast: sessionLatLng);
+    } else if (initialLatLng.longitude > sessionLatLng.longitude) {
+      latLngBounds = LatLngBounds(
+          southwest: LatLng(initialLatLng.latitude, sessionLatLng.longitude),
+          northeast: LatLng(sessionLatLng.latitude, initialLatLng.longitude));
+    } else if (initialLatLng.latitude > sessionLatLng.latitude) {
+      latLngBounds = LatLngBounds(
+          southwest: LatLng(sessionLatLng.latitude, initialLatLng.longitude),
+          northeast: LatLng(initialLatLng.latitude, sessionLatLng.longitude));
+    } else {
+      latLngBounds =
+          LatLngBounds(southwest: initialLatLng, northeast: sessionLatLng);
+    }
+
+    newUserGoogleMapController?.animateCamera(CameraUpdate.newLatLngBounds(latLngBounds, 70));
+
+    Marker initialLocMarker = Marker(
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+      position: initialLatLng,
+      markerId: MarkerId("pickUpId"),
+    );
+
+    Marker sessionLocMarker = Marker(
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      position: sessionLatLng,
+      markerId: MarkerId("dropOffId"),
+    );
+
+    setState(() {
+      markersSet.add(initialLocMarker);
+      markersSet.add(sessionLocMarker);
+    });
+
+    Circle initialLocCircle = Circle(
+      fillColor: Colors.blueAccent,
+      center: initialLatLng,
+      radius: 12,
+      strokeWidth: 4,
+      strokeColor: Colors.blueAccent,
+      circleId: CircleId("pickUpId"),
+    );
+
+    Circle sessionLocCircle = Circle(
+      fillColor: Colors.deepPurple,
+      center: sessionLatLng,
+      radius: 12,
+      strokeWidth: 4,
+      strokeColor: Colors.deepPurple,
+      circleId: CircleId("dropOffId"),
+    );
+
+    setState(() {
+      circleSet.add(initialLocCircle);
+      circleSet.add(sessionLocCircle);
+    });
   }
 }

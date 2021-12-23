@@ -11,6 +11,7 @@ String  BrandBold='Brand Bold' ;
 String  BrandRegular='Brand-Regular' ;
 String  Signatra='Signatra';
 final assetsAudioPlayers = AssetsAudioPlayer();
+Position? currentPosition;
 User? firebaseUser;
 
 Users? userCurrentInfo;
