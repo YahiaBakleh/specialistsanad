@@ -17,11 +17,14 @@ void main() async {
 }
 
 DatabaseReference usersRef = FirebaseDatabase.instance.reference().child('users');
-DatabaseReference specialistRef = FirebaseDatabase.instance.reference().child('specialits');
+//TODO: if face any errro just uncomment where u find 'specialits' word
+// DatabaseReference specialistRef = FirebaseDatabase.instance.reference().child('specialits');
+DatabaseReference specialistRef = FirebaseDatabase.instance.reference().child('specialists');
 // newRequsettRef for user request node
 DatabaseReference newRequsetsRef = FirebaseDatabase.instance.reference().child('User Requests');
 // requestRef is used for specialist to be on or off and save his location using geofire
-DatabaseReference requestRef = FirebaseDatabase.instance.reference().child('specialits').child(currentFirebaseUser!.uid).child('newRequest');
+// DatabaseReference requestRef = FirebaseDatabase.instance.reference().child('specialits').child(currentFirebaseUser!.uid).child('newRequest');
+DatabaseReference requestRef = FirebaseDatabase.instance.reference().child('specialists').child(currentFirebaseUser!.uid).child('newRequest');
 
 class MyApp extends StatelessWidget {
   static const idScreen = 'mainScreen';

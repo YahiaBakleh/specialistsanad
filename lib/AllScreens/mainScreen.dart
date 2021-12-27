@@ -25,7 +25,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void initState() {
     // TODO: implement initState
     super.initState();
-    tabController= TabController(length: double.infinity.toInt(), vsync: this);
+    tabController= TabController(length: 4, vsync: this);
   }
   @override
   void dispose() {

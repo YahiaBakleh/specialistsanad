@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:specialistsanad/Assistants/assistantMethod.dart';
+import 'package:specialistsanad/Models/specialists.dart';
 import 'package:specialistsanad/Notifications/pushNotificationService.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:specialistsanad/main.dart';
@@ -46,10 +48,18 @@ class _HomeTabPageState extends State<HomeTabPage> {
 
   void getSpecialistInfo() async {
     currentFirebaseUser = await FirebaseAuth.instance.currentUser;
+    specialistRef.child(currentFirebaseUser!.uid).once().then((DataSnapshot dataSnapshot) {
+      if (dataSnapshot.value != null) {
+        specialistsInfo = Specialists.fromSnapShot(dataSnapshot);
+      }
+    });
     PushNotificationService pushNotificationService = PushNotificationService();
     pushNotificationService.initialize(context);
     pushNotificationService.getToken();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -167,7 +177,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     currentPosition = position;
     Geofire.initialize('availableSpecialist');
     Geofire.setLocation(currentFirebaseUser!.uid, currentPosition!.latitude, currentPosition!.longitude);
-   // should show some searching state under Specialist node then newRequest:searching
+    // should show some searching state under Specialist node then newRequest (it may rename to newOrder):searching
     requestRef.set('searching');
     requestRef.onValue.listen((event) {});
   }

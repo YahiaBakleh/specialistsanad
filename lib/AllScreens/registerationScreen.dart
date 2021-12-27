@@ -1,5 +1,6 @@
 // import 'package:specialistsanad/AllScreens/mainScreen.dart';
 import 'package:firebase_database/firebase_database.dart';
+// import 'package:specialistsanad/AllScreens/profileInfoScreen.dart';
 import 'package:specialistsanad/AllWidgets/progressDialog.dart';
 import 'package:specialistsanad/Models/allUsers.dart';
 import 'package:specialistsanad/configMaps.dart';
@@ -29,6 +30,7 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
   TextEditingController phone = TextEditingController();
   TextEditingController mobile = TextEditingController();
   TextEditingController residence = TextEditingController();
+  TextEditingController price = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -127,6 +129,34 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       SizedBox(
                         height: 30.0,
                       ),
+
+                      TextFormField(
+                        controller: price,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your wages';
+                          }
+                          if (!RegExp(r"^[0-9]*$").hasMatch(value)) {
+                            return 'Numeric Value only';
+                          }
+                          return int.parse(value) <= 0 ? 'Price is greater than 0' : null;
+                        },
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                        maxLength: 4,
+                        decoration: InputDecoration(
+                            errorStyle: TextStyle(fontFamily: 'Brand Bold', fontSize: 16, color: Colors.redAccent),
+                            contentPadding: EdgeInsets.all(2.0), //  <- you can it to 0.0 for no space
+                            isDense: true,
+                            hintText: "Price Per Hour",
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 22)),
+                        style: TextStyle(fontSize: 22.0, fontFamily: 'Brand Bold'),
+                      ), //Price per hour
+                      SizedBox(
+                        height: 30.0,
+                      ),
+
                       TextFormField(
                         controller: phone,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -252,11 +282,14 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
         'phone': phone.text.trim(),
         'mobile': mobile.text.trim(),
         'residence': residence.text.trim(),
+        'price': int.parse(price.text.trim()),
         'activated': false
       };
       specialistRef.child(result.uid).set(specialistDataMap);
       // add curent user to globale currentFirebaseUser
       currentFirebaseUser = result;
+      // Fluttertoast.showToast(msg: "Speciaslit Account Created has been Successfully , Please create Profile ");
+      // Navigator.pushNamed(context, ProfileInfoScreen.idScreen, arguments: (route) => false);
       Fluttertoast.showToast(msg: "Speciaslit Account Created has been Successfully , Plese wait untile activate account");
       Navigator.pushNamed(context, LoginScreen.idScreen, arguments: (route) => false);
     } else {

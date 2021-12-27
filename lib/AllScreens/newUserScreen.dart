@@ -7,6 +7,7 @@ import 'package:specialistsanad/AllWidgets/progressDialog.dart';
 import 'package:specialistsanad/Assistants/assistantMethod.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
 import 'package:specialistsanad/configMaps.dart';
+import 'package:specialistsanad/main.dart';
 
 //to show user Details in dialog for specialist
 class NewUserScreen extends StatefulWidget {
@@ -27,6 +28,13 @@ class _NewUserScreenState extends State<NewUserScreen> {
   List<LatLng> polylineCorOrdinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   double mapPaddingBottom = 0;
+
+  @override
+  void initState(){
+    super.initState();
+    acceptUserRequest();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,5 +261,24 @@ class _NewUserScreenState extends State<NewUserScreen> {
       circleSet.add(initialLocCircle);
       circleSet.add(sessionLocCircle);
     });
+  }
+
+
+  void acceptUserRequest()
+  {
+    String? userRequestId = widget.userDetails.user_request_id;
+    newRequsetsRef.child(userRequestId.toString()).child("status").set("accepted");
+    newRequsetsRef.child(userRequestId.toString()).child("specialist_name").set(specialistsInfo?.name);
+    newRequsetsRef.child(userRequestId.toString()).child("specialist_phone").set(specialistsInfo?.phone);
+    newRequsetsRef.child(userRequestId.toString()).child("specialist_mobile").set(specialistsInfo?.mobile);
+    newRequsetsRef.child(userRequestId.toString()).child("specialist_id").set(specialistsInfo?.id);
+    newRequsetsRef.child(userRequestId.toString()).child("specialist_price").set(specialistsInfo?.price);
+    Map locMap =
+    {
+      "latitude": currentPosition?.latitude.toString(),
+      "longitude": currentPosition?.longitude.toString(),
+    };
+    newRequsetsRef.child(userRequestId.toString()).child("specialist_location").set(locMap);
+    specialistRef.child(currentFirebaseUser!.uid).child("history").child(userRequestId!).set(true);
   }
 }
