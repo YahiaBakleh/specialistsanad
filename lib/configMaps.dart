@@ -1,5 +1,7 @@
 import 'dart:async';
 
+// to do copy this page and config to flutlab upon network error vid stop on 16:21
+
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
@@ -21,6 +23,7 @@ User? currentFirebaseUser;
 String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
 StreamSubscription<Position>? homeTabPagesStreamSubscription;
+StreamSubscription<Position>? userStreamSubscription;
 int? driverRequestTimeOut = 40;
 String? statusRide = "";
 String? rideStatus = "Driver is Coming";

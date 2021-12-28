@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:specialistsanad/AllWidgets/progressDialog.dart';
 import 'package:specialistsanad/Assistants/assistantMethod.dart';
@@ -28,6 +30,33 @@ class _NewUserScreenState extends State<NewUserScreen> {
   List<LatLng> polylineCorOrdinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   double mapPaddingBottom = 0;
+  Geolocator geolocator= Geolocator();
+  LocationOptions locationOptions = LocationOptions(accuracy: LocationAccuracy.bestForNavigation);
+  late BitmapDescriptor animatingMarkerIcon;
+  late Position myPosition;
+
+  void createIconMarker(){
+    if(animatingMarkerIcon==null){
+      ImageConfiguration imageConfiguration = createLocalImageConfiguration(context,size:Size(2,2));
+      BitmapDescriptor.fromAssetImage(imageConfiguration, 'images/specialist.png').then((value) => animatingMarkerIcon=value);
+    }
+  }
+
+  void getUserLiveLocationUpdates(){
+    userStreamSubscription = Geolocator.getPositionStream().listen((Position position) {
+      currentPosition = position;
+      myPosition = position;
+      LatLng markerPosition = LatLng(position.longitude, position.longitude);
+      Marker animatingMarker = Marker(markerId: MarkerId('animating'),position: markerPosition,icon:animatingMarkerIcon,infoWindow: InfoWindow(title: "Current Location"));
+
+      setState(() {
+        CameraPosition cameraPosition = new CameraPosition(target: markerPosition, zoom: 17);
+        newUserGoogleMapController?.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+        markersSet.removeWhere((marker) => marker.markerId.value=="animating");
+        markersSet.add(animatingMarker);
+      });
+    });
+  }
 
   @override
   void initState(){
@@ -37,6 +66,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    createIconMarker();
     return Scaffold(
       body:  Stack(
         children: [
@@ -60,6 +90,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
               var currentLatlng = LatLng(currentPosition!.latitude.toDouble(), currentPosition!.longitude.toDouble());
               var sessionLatling = widget.userDetails.session_location;
               await getPlaceDirection(currentLatlng, sessionLatling!);
+              getUserLiveLocationUpdates();
             },
           ),
           Positioned(

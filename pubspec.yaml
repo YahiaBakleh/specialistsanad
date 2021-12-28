@@ -105,10 +105,12 @@ flutter:
     - images/redmarker.png
     - images/Sanad-Logo.png
     - images/user_icon.png
+    - images/specialist.png
     - images/sessionWithHony.jpg
     - images/normalSession.jpg
     - images/orgnizedSession.jpg
     - sounds/alerts.mp3
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -140,6 +140,7 @@ class NotificationDialog extends StatelessWidget {
       }
       if(userId==uerDetails?.user_request_id.toString()){
         requestRef.set('accepted');
+        AssistantMethod.disableHomeTabliveLocationUpdates();
         Navigator.push(context, MaterialPageRoute(builder: (context)=>NewUserScreen(uerDetails!)));
       }else if(userId=='cancelled'){
         Fluttertoast.showToast(msg: "Request has been cancelled");

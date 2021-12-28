@@ -129,4 +129,14 @@ class AssistantMethod {
       }
     });
   }
+
+  static void disableHomeTabliveLocationUpdates(){
+    homeTabPagesStreamSubscription?.pause();
+    Geofire.removeLocation(currentFirebaseUser!.uid);
+  }
+
+  static void enableHomeTabliveLocationUpdates(){
+    homeTabPagesStreamSubscription?.resume();
+    Geofire.setLocation(currentFirebaseUser!.uid, currentPosition!.latitude, currentPosition!.longitude);
+  }
 }
