@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:specialistsanad/AllWidgets/progressDialog.dart';
 import 'package:specialistsanad/Assistants/assistantMethod.dart';
+import 'package:specialistsanad/Assistants/mapKitAssistant.dart';
 import 'package:specialistsanad/Models/userDetails.dart';
 import 'package:specialistsanad/configMaps.dart';
 import 'package:specialistsanad/main.dart';
@@ -34,6 +35,9 @@ class _NewUserScreenState extends State<NewUserScreen> {
   LocationOptions locationOptions = LocationOptions(accuracy: LocationAccuracy.bestForNavigation);
   late BitmapDescriptor animatingMarkerIcon;
   late Position myPosition;
+  String status = "accepted";
+  String minDurationToArrive='until judge Day';
+  bool isRequestDirection = false;
 
   void createIconMarker(){
     if(animatingMarkerIcon==null){
@@ -43,11 +47,19 @@ class _NewUserScreenState extends State<NewUserScreen> {
   }
 
   void getUserLiveLocationUpdates(){
+    LatLng oldPosition = LatLng(0.0, 0.0);
     userStreamSubscription = Geolocator.getPositionStream().listen((Position position) {
       currentPosition = position;
       myPosition = position;
-      LatLng markerPosition = LatLng(position.longitude, position.longitude);
-      Marker animatingMarker = Marker(markerId: MarkerId('animating'),position: markerPosition,icon:animatingMarkerIcon,infoWindow: InfoWindow(title: "Current Location"));
+      LatLng markerPosition = LatLng(position.longitude, position.longitude); // in tutorial called mPosition
+      var rot = MapKitAssistant.getMarkerRotation(oldPosition.latitude, oldPosition.longitude, myPosition.latitude, myPosition.longitude);
+      //TODO:rotation: rot // if any problem rot is double data type try num data type just so let .getMarkerRotation return num and remove .toDouble in return clause
+      Marker animatingMarker = Marker(
+          markerId: MarkerId('animating'),
+          rotation: rot,
+          position: markerPosition,
+          icon:animatingMarkerIcon,
+          infoWindow: InfoWindow(title: "Current Location"));
 
       setState(() {
         CameraPosition cameraPosition = new CameraPosition(target: markerPosition, zoom: 17);
@@ -55,6 +67,16 @@ class _NewUserScreenState extends State<NewUserScreen> {
         markersSet.removeWhere((marker) => marker.markerId.value=="animating");
         markersSet.add(animatingMarker);
       });
+      oldPosition = markerPosition;
+      updateUserDetails();
+      // to update spe location in firebse
+      String? userRequestId = widget.userDetails.user_request_id;
+      Map locMap =
+      {
+        "latitude": currentPosition?.latitude.toString(),
+        "longitude": currentPosition?.longitude.toString(),
+      };
+      newRequsetsRef.child(userRequestId.toString()).child("specialist_location").set(locMap);
     });
   }
 
@@ -115,7 +137,15 @@ class _NewUserScreenState extends State<NewUserScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 24.0,vertical:18.0 ),
                 child: Column(
                   children: [
-                    SizedBox(height: 5.0,),
+                    Expanded(
+                      child: Container(
+                        child: Text(
+                            "Minimums Arrived at " + minDurationToArrive ,
+                            style:TextStyle(fontSize: 14.0,fontFamily: BrandBold,color: Colors.deepPurpleAccent),
+                          ),
+                        ),
+                      ),
+                    SizedBox(height: 6.0,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -294,9 +324,7 @@ class _NewUserScreenState extends State<NewUserScreen> {
     });
   }
 
-
-  void acceptUserRequest()
-  {
+  void acceptUserRequest() {
     String? userRequestId = widget.userDetails.user_request_id;
     newRequsetsRef.child(userRequestId.toString()).child("status").set("accepted");
     newRequsetsRef.child(userRequestId.toString()).child("specialist_name").set(specialistsInfo?.name);
@@ -311,5 +339,31 @@ class _NewUserScreenState extends State<NewUserScreen> {
     };
     newRequsetsRef.child(userRequestId.toString()).child("specialist_location").set(locMap);
     specialistRef.child(currentFirebaseUser!.uid).child("history").child(userRequestId!).set(true);
+  }
+  void updateUserDetails(){
+    if(isRequestDirection=false){
+      setState(() {
+        isRequestDirection = true;
+      });
+      if(myPosition ==null){
+        return;
+      }
+      LatLng posLatlng = LatLng(myPosition.latitude, myPosition.longitude);
+      LatLng? destinationLatlng ;
+      if(status=="accepted"){
+        destinationLatlng= widget.userDetails?.session_location;
+      }
+      var directionDetails = AssistantMethod.obtainPlaceDirectionDetails(posLatlng, destinationLatlng!);
+      if(directionDetails!=null){
+        directionDetails.then((value){
+          setState(() {
+            minDurationToArrive= value!.durationText.toString();
+          });
+        });
+      }
+      setState(() {
+        isRequestDirection = false;
+      });
+    }
   }
 }
